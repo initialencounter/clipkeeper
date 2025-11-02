@@ -1,0 +1,39 @@
+[package]
+name = "clipkeeper"
+version = "0.1.0"
+edition = "2024"
+
+authors = ["inintencunter <2911583893@qq.com>"]
+include = ["readme.md", "src", "Cargo.toml"]
+description = "A Rust library for saving and restoring Windows clipboard contents with full format support"
+homepage = "https://github.com/initialencounter/clipkeeper"
+readme = "readme.md"
+keywords = ["clipboard", "windows", "persistence", "snapshot", "backup"]
+license = "AGPL-3.0"
+repository = "https://github.com/initialencounter/clipkeeper"
+
+[[example]]
+name = "basic"
+path = "examples/basic.rs"
+
+[[example]]
+name = "custom_path"
+path = "examples/custom_path.rs"
+
+[dependencies]
+anyhow = "1.0.100"
+base64 = "0.22.1"
+dirs = "6.0.0"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.58", features = [
+  "Win32_Foundation",
+  "Win32_System_DataExchange",
+  "Win32_System_Memory",
+  "Win32_System_Ole",
+] }
+
+[package.metadata.docs.rs]
+targets = ["x86_64-pc-windows-msvc", "i686-pc-windows-msvc"]

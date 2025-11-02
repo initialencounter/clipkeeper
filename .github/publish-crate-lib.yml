@@ -1,0 +1,18 @@
+name: Publish flextrek
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish-crate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - uses: katyo/publish-crates@v2
+        with:
+          path: '.'
+          registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
