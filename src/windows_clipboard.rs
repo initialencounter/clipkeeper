@@ -119,8 +119,9 @@ unsafe fn register_format(name: &str) -> u32 {
 }
 
 #[cfg(windows)]
-/// 从全局内存句柄读取数据
-unsafe fn read_global_data(handle: HGLOBAL) -> Result<Vec<u8>> {
+/// 从剪贴板数据句柄读取数据
+/// 注意: 剪贴板返回的句柄由剪贴板管理，不应该手动 Unlock
+unsafe fn read_clipboard_data(handle: HGLOBAL) -> Result<Vec<u8>> {
     unsafe {
         let data_size = GlobalSize(handle);
         if data_size == 0 {
@@ -132,7 +133,10 @@ unsafe fn read_global_data(handle: HGLOBAL) -> Result<Vec<u8>> {
             anyhow::bail!("无法锁定全局内存");
         }
 
+        // 复制数据到新的 Vec
         let data = std::slice::from_raw_parts(data_ptr as *const u8, data_size).to_vec();
+        
+        // 解锁内存（但不释放，因为它属于剪贴板）
         let _ = GlobalUnlock(handle);
 
         Ok(data)
@@ -140,7 +144,7 @@ unsafe fn read_global_data(handle: HGLOBAL) -> Result<Vec<u8>> {
 }
 
 #[cfg(windows)]
-/// 将数据写入全局内存句柄
+/// 将数据写入全局内存句柄（用于设置到剪贴板）
 unsafe fn write_global_data(data: &[u8]) -> Result<HGLOBAL> {
     unsafe {
         let mem_handle = GlobalAlloc(GMEM_MOVEABLE, data.len())?;
@@ -178,8 +182,13 @@ pub fn get_windows_clipboard_snapshot() -> Result<WindowsClipboardSnapshot> {
 
             match GetClipboardData(format_id) {
                 Ok(data_handle) => {
+                    if data_handle.0.is_null() {
+                        eprintln!("警告: 格式 {} 的数据句柄为空", format_id);
+                        continue;
+                    }
+                    
                     let global_handle = HGLOBAL(data_handle.0);
-                    match read_global_data(global_handle) {
+                    match read_clipboard_data(global_handle) {
                         Ok(data) => {
                             let format_name = get_format_name(format_id);
 
@@ -194,8 +203,8 @@ pub fn get_windows_clipboard_snapshot() -> Result<WindowsClipboardSnapshot> {
                         }
                     }
                 }
-                Err(_) => {
-                    eprintln!("警告: 无法获取格式 {} 的数据", format_id);
+                Err(e) => {
+                    eprintln!("警告: 无法获取格式 {} 的数据: {:?}", format_id, e);
                 }
             }
         }
