@@ -1,4 +1,4 @@
-name: Publish flextrek
+name: Publish clipkeeper
 
 on:
   workflow_dispatch:
