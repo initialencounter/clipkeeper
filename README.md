@@ -2,6 +2,12 @@
 
 一个用于保存和恢复 Windows 剪贴板内容的 Rust 库。
 
+## 平台支持
+
+- ✅ Windows (x86_64, i686)
+- ❌ macOS（待支持）
+- ❌ Linux（待支持）
+
 ## 功能特性
 
 - 📋 捕获剪贴板所有格式的完整快照
@@ -66,12 +72,6 @@ let snapshot = WindowsClipboardSnapshot::load_from_file(Some(custom_path))?;
 ```bash
 cargo run --example basic
 ```
-
-## 平台支持
-
-- ✅ Windows (x86_64, i686)
-- ❌ macOS（待支持）
-- ❌ Linux（待支持）
 
 ## 许可证
 
