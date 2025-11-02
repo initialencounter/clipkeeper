@@ -1,6 +1,6 @@
 [package]
 name = "clipkeeper"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 
 authors = ["inintencunter <2911583893@qq.com>"]
